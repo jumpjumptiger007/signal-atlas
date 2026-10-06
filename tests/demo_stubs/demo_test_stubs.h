@@ -18,6 +18,7 @@ void test_log(const char *tag, const char *format, ...);
 #define ESP_LOGI(...) test_log(__VA_ARGS__)
 
 typedef int BaseType_t;
+typedef unsigned UBaseType_t;
 typedef unsigned TickType_t;
 typedef struct test_task *TaskHandle_t;
 typedef struct test_sem *SemaphoreHandle_t;
@@ -42,6 +43,7 @@ BaseType_t xTaskNotifyWait(uint32_t clear_entry, uint32_t clear_exit,
 void vTaskSuspend(TaskHandle_t task);
 void vTaskDelete(TaskHandle_t task);
 void vTaskDelay(TickType_t ticks);
+UBaseType_t uxTaskGetStackHighWaterMark(TaskHandle_t task);
 SemaphoreHandle_t xSemaphoreCreateBinary(void);
 BaseType_t xSemaphoreGive(SemaphoreHandle_t sem);
 BaseType_t xSemaphoreTake(SemaphoreHandle_t sem, TickType_t ticks);
@@ -109,13 +111,16 @@ typedef struct { int unused; } esp_netif_config_t;
 #define ESP_NETIF_DEFAULT_WIFI_STA() { 0 }
 typedef const char *esp_event_base_t;
 typedef void *esp_event_handler_instance_t;
-#define WIFI_EVENT "wifi"
+extern const char test_wifi_event_base[];
+#define WIFI_EVENT test_wifi_event_base
 #define WIFI_EVENT_SCAN_DONE 1
 #define WIFI_STORAGE_RAM 0
 #define WIFI_MODE_STA 0
 typedef struct { int unused; } wifi_init_config_t;
 #define WIFI_INIT_CONFIG_DEFAULT() { 0 }
-typedef struct { int rssi; uint8_t ssid[33]; uint8_t primary; } wifi_ap_record_t;
+typedef struct { int rssi; uint8_t ssid[33]; uint8_t bssid[6]; uint8_t primary; uint8_t authmode; } wifi_ap_record_t;
+typedef struct { int scan_type; bool show_hidden; } wifi_scan_config_t;
+#define WIFI_SCAN_TYPE_ACTIVE 0
 esp_netif_t *esp_netif_new(const esp_netif_config_t *cfg);
 esp_err_t esp_netif_attach_wifi_station(esp_netif_t *netif);
 esp_err_t esp_wifi_set_default_wifi_sta_handlers(void);
@@ -136,22 +141,39 @@ esp_err_t esp_event_handler_instance_register(esp_event_base_t base, int32_t id,
 esp_err_t esp_event_handler_instance_unregister(esp_event_base_t base, int32_t id,
     esp_event_handler_instance_t instance);
 
-struct ble_gap_event { int type; };
+typedef struct { uint8_t type; uint8_t val[6]; } ble_gap_addr_t;
+struct ble_gap_disc_desc { ble_gap_addr_t addr; int8_t rssi; const uint8_t *data; uint8_t length_data; };
+struct ble_gap_event { int type; union { struct ble_gap_disc_desc disc; } ; };
 struct ble_hs_adv_fields { int flags; const uint8_t *name; size_t name_len; int name_is_complete; };
 struct ble_gap_adv_params { int conn_mode; int disc_mode; };
+struct ble_gap_disc_params {
+    uint8_t filter_duplicates;
+    uint8_t passive;
+    uint16_t itvl;
+    uint16_t window;
+    uint8_t filter_policy;
+    uint8_t limited;
+};
 struct test_ble_hs_cfg { void (*reset_cb)(int); void (*sync_cb)(void); };
 extern struct test_ble_hs_cfg ble_hs_cfg;
 #define BLE_HS_ADV_F_DISC_GEN 1
 #define BLE_HS_ADV_F_BREDR_UNSUP 2
 #define BLE_GAP_CONN_MODE_NON 0
 #define BLE_GAP_DISC_MODE_GEN 0
-#define BLE_HS_FOREVER -1
 #define BLE_GAP_EVENT_ADV_COMPLETE 1
+#define BLE_GAP_EVENT_DISC 7
+#define BLE_GAP_EVENT_DISC_COMPLETE 8
+#define BLE_ADDR_PUBLIC 0
+#define BLE_HS_FOREVER INT32_MAX
 int ble_gap_adv_set_fields(const struct ble_hs_adv_fields *fields);
 int ble_gap_adv_start(uint8_t address_type, const void *address, int duration,
     const struct ble_gap_adv_params *params,
     int (*callback)(struct ble_gap_event *, void *), void *arg);
 int ble_gap_adv_stop(void);
+int ble_gap_disc(uint8_t own_address_type, int32_t duration,
+    const struct ble_gap_disc_params *params,
+    int (*callback)(struct ble_gap_event *, void *), void *arg);
+int ble_gap_disc_cancel(void);
 int ble_hs_util_ensure_addr(int privacy);
 int ble_hs_id_infer_auto(int privacy, uint8_t *type);
 void ble_svc_gap_init(void);

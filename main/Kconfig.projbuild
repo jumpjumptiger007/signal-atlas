@@ -1,0 +1,40 @@
+menu "Signal Atlas"
+
+config RADIO_EXPLORER_SIMULATOR
+    bool "Build the explicit AI Passport Simulator profile"
+    default n
+    help
+        Use deterministic MockBleScanner observations through the production
+        parser and model. This profile does not initialize a BLE controller and
+        is not evidence of real BLE/RF behavior.
+
+choice RADIO_EXPLORER_MOCK_SCENARIO
+    prompt "Simulator mock-radio scenario"
+    depends on RADIO_EXPLORER_SIMULATOR
+    default RADIO_EXPLORER_MOCK_SCENARIO_NORMAL
+    help
+        Build-time-only scenario selection for repeatable Simulator validation.
+
+config RADIO_EXPLORER_MOCK_SCENARIO_NORMAL
+    bool "Normal mock observations"
+
+config RADIO_EXPLORER_MOCK_SCENARIO_EMPTY
+    bool "Empty scanner"
+
+config RADIO_EXPLORER_MOCK_SCENARIO_FAILURE
+    bool "Backend failure"
+
+config RADIO_EXPLORER_MOCK_SCENARIO_OVERFLOW
+    bool "Capacity overflow"
+
+endchoice
+
+config RADIO_EXPLORER_SIMULATOR_SEED_HISTORY
+    bool "Seed one local-history fixture for Simulator validation"
+    depends on RADIO_EXPLORER_SIMULATOR
+    default y
+    help
+        Seed a synthetic summary only in the explicit Simulator profile.
+        This never enables fabricated production observations or history.
+
+endmenu

@@ -10,6 +10,7 @@ struct test_task { TaskFunction_t entry; void *arg; bool deleted; uint32_t notif
 struct test_sem { bool available; bool deleted; };
 struct test_task test_tasks[16];
 struct test_sem test_sems[16];
+const char test_wifi_event_base[] = "wifi";
 unsigned test_task_count, test_sem_count, test_task_deletes, test_notifications;
 bool test_create_fails, test_sem_fails, test_auto_ack;
 TaskHandle_t test_current_task, test_latest_task;
@@ -114,6 +115,7 @@ void vTaskDelete(TaskHandle_t task) {
     test_task_deletes++;
 }
 void vTaskDelay(TickType_t ticks) { (void)ticks; }
+UBaseType_t uxTaskGetStackHighWaterMark(TaskHandle_t task) { (void)task; return 512; }
 SemaphoreHandle_t xSemaphoreCreateBinary(void) {
     if (test_sem_fails) return NULL;
     assert(test_sem_count < 16);

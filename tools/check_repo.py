@@ -33,6 +33,19 @@ ROOT_MARKDOWN_ALLOWLIST = {
     "CLAUDE.zh_CN.md",
     "README.md",
     "README.zh_CN.md",
+    "THIRD_PARTY_NOTICES.md",
+}
+# Exact-path exception for canonical Signal Atlas records per AGENTS.md.
+ENGLISH_ONLY_DOCUMENTS = {
+    "AGENTS.md",
+    "README.md",
+    "docs/codex-autopilot-goal.md",
+    "docs/donor-audit.md",
+    "docs/execution-report.md",
+    "docs/gates.md",
+    "docs/hardware-acceptance.md",
+    "docs/implementation-spec.md",
+    "THIRD_PARTY_NOTICES.md",
 }
 # Register only concrete, vendored component directories, e.g. "components/foo".
 # These exemptions never change the input to sensitive-content/conflict checks.
@@ -136,6 +149,33 @@ def check_required_files(errors: list[str]) -> None:
             )
 
 
+def check_registry_distribution(errors: list[str]) -> None:
+    """Keep non-cleared IEEE assignment data out of the distributable tree."""
+    ieee_sources = tuple((ROOT / "tools/registry_sources/ieee").glob("*.csv"))
+    if ieee_sources:
+        errors.append("IEEE source CSVs must be obtained independently, not distributed in this repository")
+
+    tracked = [
+        path.relative_to(ROOT).as_posix()
+        for path in git_files()
+        if path.relative_to(ROOT).as_posix() in {
+            "main/identify/registry_data_ieee_local.c",
+            "main/identify/registry_metadata_ieee_local.json",
+        }
+    ]
+    if tracked:
+        errors.append("locally generated or source IEEE registry data must not be tracked: " + ", ".join(tracked))
+
+    metadata_path = ROOT / "main/identify/registry_metadata.json"
+    try:
+        import json
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        if metadata.get("ieee_records") != 0:
+            errors.append("public registry metadata must report zero packaged IEEE records")
+    except (OSError, ValueError):
+        errors.append("public Nordic registry metadata is missing or invalid")
+
+
 def check_markdown_links(
     files: list[Path], errors: list[str], vendored_roots: tuple[Path, ...] = ()
 ) -> None:
@@ -207,7 +247,7 @@ def check_community_document_links(files: list[Path], errors: list[str]) -> None
 def check_document_languages(
     files: list[Path], errors: list[str], vendored_roots: tuple[Path, ...] = ()
 ) -> None:
-    """Require an English default and a linked Simplified Chinese peer."""
+    """Require bilingual peers except for exact canonical English project documents."""
     markdown = {
         path for path in files
         if path.suffix.lower() == ".md" and not is_vendored_document(path, vendored_roots)
@@ -216,6 +256,8 @@ def check_document_languages(
     for path in sorted(markdown):
         name = path.name
         text = path.read_text(encoding="utf-8")
+        if path.relative_to(ROOT).as_posix() in ENGLISH_ONLY_DOCUMENTS:
+            continue
         opening = "\n".join(text.splitlines()[:8])
 
         if name.endswith(".zh_CN.md"):
@@ -306,6 +348,7 @@ def main() -> int:
     vendored_roots = vendored_document_roots(errors)
     files = text_files()
     check_required_files(errors)
+    check_registry_distribution(errors)
     check_markdown_links(files, errors, vendored_roots)
     check_community_document_links(files, errors)
     check_document_languages(files, errors, vendored_roots)

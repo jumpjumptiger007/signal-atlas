@@ -1,4 +1,6 @@
 build/
+main/identify/registry_data_ieee_local.c
+main/identify/registry_metadata_ieee_local.json
 sdkconfig
 sdkconfig.old
 managed_components/

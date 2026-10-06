@@ -1,0 +1,11 @@
+# Apply alongside sdkconfig.defaults for the AI Passport Simulator profile.
+CONFIG_RADIO_EXPLORER_SIMULATOR=y
+CONFIG_RADIO_EXPLORER_MOCK_SCENARIO_NORMAL=y
+CONFIG_RADIO_EXPLORER_SIMULATOR_SEED_HISTORY=y
+CONFIG_BT_ENABLED=n
+CONFIG_BT_NIMBLE_ENABLED=n
+# The pinned Simulator captures UART0, not the ESP32-C3 USB Serial/JTAG
+# console. Route Simulator-profile ESP-IDF logs to UART0 so runtime evidence
+# (heap, task stacks, and history persistence) is visible in its UART panel.
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=n

@@ -144,7 +144,8 @@ class VendoredDocumentationTest(unittest.TestCase):
 
     def test_first_party_symlink_into_vendored_directory_remains_checked(self) -> None:
         target = self.document("components/vendor_audio/README.md")
-        link = self.root / "README.md"
+        (self.root / "docs").mkdir()
+        link = self.root / "docs" / "guide.md"
         self.symlink(link, target)
         self.assertEqual(len(self.document_errors([link])), 2)
 
@@ -164,6 +165,7 @@ class VendoredDocumentationTest(unittest.TestCase):
         with (
             patch.object(CHECKS, "git_files", return_value=files),
             patch.object(CHECKS, "check_required_files"),
+            patch.object(CHECKS, "check_registry_distribution"),
             patch.object(CHECKS, "check_action_pins"),
             patch.object(CHECKS, "check_issue_forms"),
             contextlib.redirect_stderr(io.StringIO()) as output,
@@ -177,6 +179,43 @@ class VendoredDocumentationTest(unittest.TestCase):
             "possible unsanitized device QR link", "unresolved merge conflict marker",
         ):
             self.assertTrue(any(expected in error for error in errors), errors)
+
+
+class ProjectEnglishOnlyDocumentTest(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory(prefix="ai-passport-project-doc-tests-")
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
+        root_patch = patch.object(CHECKS, "ROOT", self.root)
+        root_patch.start()
+        self.addCleanup(root_patch.stop)
+
+    def test_exact_project_canonical_paths_are_english_only(self) -> None:
+        files = []
+        for name in sorted(CHECKS.ENGLISH_ONLY_DOCUMENTS):
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Canonical project record\n\nEnglish prose.\n", encoding="utf-8")
+            files.append(path)
+        errors: list[str] = []
+        CHECKS.check_document_languages(files, errors)
+        self.assertEqual(errors, [])
+
+    def test_agents_is_canonical_english_without_language_navigation(self) -> None:
+        path = self.root / "AGENTS.md"
+        path.write_text("# Repository Guidelines\n\nEnglish execution policy.\n", encoding="utf-8")
+        errors: list[str] = []
+        CHECKS.check_document_languages([path], errors)
+        self.assertEqual(errors, [])
+
+    def test_nearby_first_party_path_still_requires_bilingual_peer(self) -> None:
+        path = self.root / "docs" / "execution-report-extra.md"
+        path.parent.mkdir(parents=True)
+        path.write_text("# Extra\n", encoding="utf-8")
+        errors: list[str] = []
+        CHECKS.check_document_languages([path], errors)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("missing Simplified Chinese peer", errors[0])
 
 
 class CommunityDocumentLinksTest(unittest.TestCase):
