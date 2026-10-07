@@ -122,7 +122,7 @@ git diff main...origin/demo/tetris-game -- main components tests
 git show origin/demo/tetris-game:main/demo_tetris.c
 ```
 
-开始新应用。本仓库在同一个基线上承载多个独立项目：从 `main` 开始后，应创建 `feature/*` 分支并在该分支上开发，**不要**直接在 `main` 上开发。每个项目的最终分支都是 `feature/*`（如 `feature/my-passport-app`），让 `main` 保持干净的上游基线，各项目互不纠缠。
+开始新工作时，从 Signal Atlas `main` 创建 `feature/*` 分支，并保持产品主分支聚焦于 Signal Atlas。`main` 不作为 upstream 镜像。只读漂移检查会报告上游变化供人工 review；只有经过明确决定后才集成上游提交。
 
 ```bash
 git switch main
@@ -207,7 +207,7 @@ LICENSE                  仓库许可证
 | [社区作品与经验](reference/README.zh_CN.md) | `docs/reference/<username>/` 下的应用档案和可复用知识 |
 | [参与贡献](contribution/README.zh_CN.md) | 文档、提交与 Pull Request 约定 |
 | [品牌素材](brand/README.zh_CN.md) | 产品视觉参考与[品牌说明](brand/brand-and-product.zh_CN.md) |
-| [Fork 指南](fork-guide.zh_CN.md) · [更新记录](CHANGELOG.zh_CN.md) | 下游工作流与版本历史 |
+| [仓库与 upstream 流程](fork-guide.zh_CN.md) · [更新记录](CHANGELOG.zh_CN.md) | 仓库角色、上游 review 与版本历史 |
 
 ---
 

@@ -2,32 +2,21 @@
   <strong>简体中文</strong> · <a href="CI-sync-main.md">English</a>
 </p>
 
-# 上游同步（CI / Upstream Sync）
+# 上游漂移检查
 
-本仓库提供一套基于 GitHub Actions 的自动上游同步流水线，用于定期把上游 `FoloToy/ai-passport` 的 `main` 分支更新同步到本 fork 的 `main` 分支。
+`.github/workflows/sync-main.yml` 检查 `FoloToy/ai-passport:main` 与
+Signal Atlas `main` 的差异。工作流每天 UTC 00:00 定时运行，也支持手动触发。
+Signal Atlas 是独立仓库；该工作流不会让产品分支与 upstream 同步。
 
-本文件与 `.github/workflows/sync-main.yml` 一同维护，工作流行为变化时必须同步更新。
+工作流使用 `contents: read`，检出 Signal Atlas `main`，获取 upstream `main`，
+并在 workflow summary 中报告双方 SHA、ahead/behind 数量、共同祖先以及共同祖先
+之后的上游提交。当 upstream 有 Signal Atlas 尚未包含的提交时，工作流会发出需要
+人工 review 的 warning。它不会创建 PR，也不会写入任何分支或 remote。
 
-## 触发条件
+工作流不会 merge、rebase、cherry-pick、reset 或 push。上游漂移 warning 仅供参考：
+请审阅相关改动，并明确决定是否将其适配到 Signal Atlas，或另行准备贡献给
+`FoloToy/ai-passport` 的 PR。参见[仓库与上游维护流程](../../fork-guide.zh_CN.md)。
 
-- **schedule**：每天 00:00（UTC）自动运行一次。
-- **workflow_dispatch**：可在 GitHub Actions 页面手动触发（用于立即同步/排查问题）。
-
-> 该工作流仅在仓库为 **fork** 时生效（`if: github.event.repository.fork`）；非 fork 仓库不运行。
-
-## 流水线做了什么
-
-1. **Checkout 目标仓库**：`actions/checkout` 显式设置 `ref: main`，即使手动触发选择其他分支，也检出当前 fork 的 `main`，并关闭 Git 凭证持久化。同步 Action 在 fetch 前需要本地 `main`；否则 `git checkout main` 可能把仓库内的 `main/` 目录作为路径处理，并未切换分支。
-2. **同步上游**：使用固定到完整 commit SHA 的 `aormsby/fork-sync-with-upstream-action`（对应 v3.4.3），把 `FoloToy/ai-passport` 的 `main` 同步到本 fork 的 `main`。`target_repo_token` 使用自动生成且仅具 `contents: write` 权限的 `GITHUB_TOKEN`，无需手动配置。
-3. **失败检查**：同步失败时输出提示——上游 workflow 文件变更可能导致 GitHub 暂停自动同步，需手动 Sync Fork 一次。
-
-## 注意事项
-
-- 同步目标与上游分支均为 `main`，与 fork 用户约定（`main` 仅允许修改根目录 `README.md` 与 `docs/assets/`）配合使用：`main` 保持与上游最新基线同步、不产生冲突。
-- **在 `main` 直接开发的例外**：如果用户执意要在 `main` 分支直接开发，必须**停用/关闭本 workflow**（Actions 页面 → Disable），否则每日自动同步会把上游改动强行合入 `main`，产生冲突或覆盖本地开发内容。
-- 若同步失败，查看 Actions 日志确认是否为上游 workflow 文件变更所致；必要时按提示手动在 GitHub 页面 Sync Fork。
-- 升级 Action 时必须从官方仓库核对目标版本对应的完整 commit SHA，并同步更新 workflow 行尾的版本注释。
-
-## 相关文件
-
-- `.github/workflows/sync-main.yml`：本流水线定义。
+checkout 显式设置 `ref: main`，因此即使从其他分支手动触发，也始终检查
+Signal Atlas 产品主分支。checkout 不保留凭证；upstream remote 仅在临时的
+Actions runner 中添加。

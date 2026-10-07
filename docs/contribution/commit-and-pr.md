@@ -16,6 +16,15 @@
 
 ## Pull requests
 
+- Signal Atlas `origin` is the independent product repository. An upstream PR to
+  `FoloToy/ai-passport` must use a branch hosted in a separate contributor fork
+  (or another explicitly authorized contributor remote); do not use Signal
+  Atlas `origin` as the upstream PR head and do not convert Signal Atlas into a
+  fork.
+- Before opening an upstream PR, verify that its base repository is
+  `FoloToy/ai-passport` and its head is the intended contributor branch. General
+  BSP, hardware, build, and engineering improvements may be proposed upstream;
+  Signal Atlas product code stays in this repository.
 - Use English for the PR title, following the Conventional Commit format and English imperative style.
 - Write the PR body in English and complete `.github/PULL_REQUEST_TEMPLATE.md`.
 - Report Build, Host tests, and Device tests separately. Put unperformed hardware work under `Unverified`.

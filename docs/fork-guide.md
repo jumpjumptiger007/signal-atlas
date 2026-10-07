@@ -2,41 +2,62 @@
   <a href="fork-guide.zh_CN.md">简体中文</a> · <strong>English</strong>
 </p>
 
-# Fork Workflow
+# Repository and Upstream Workflow
 
-The upstream repository keeps `main` as the current FoloToy baseline. Fork-specific firmware belongs on `feature/*` branches so a fork can continuously synchronize its `main` without mixing product work into the baseline.
+Signal Atlas is an independent product repository. It is not a GitHub fork of
+`FoloToy/ai-passport`, and its `main` branch is the Signal Atlas product branch.
+The repository does not require its `main` to mirror or stay synchronized with
+the upstream `main`.
 
 ## Repository roles
 
 ```text
-docs/                  product, contribution, development, and design documents
-components/bsp/        stable board APIs and hardware implementation
-main/                  LVGL menu and independent demo pages
-assets/                reusable fonts, images, music, and sound effects
-skills/                reusable AI-agent skills
-tests/                 host-runnable logic tests
-sdkconfig.defaults     reproducible ESP32-C3 defaults
+origin   https://github.com/jumpjumptiger007/signal-atlas.git
+upstream https://github.com/FoloToy/ai-passport.git
 ```
 
-The root `README.md` path is intentionally available to a fork owner. Upstream's project overview is `docs/README.md`, which GitHub displays when no root README exists. A fork may add its own root README to explain its product without replacing upstream documentation.
+- `origin` stores Signal Atlas product code, documentation, and release history.
+- `upstream` is the FoloToy AI Passport source for reusable BSP, hardware, build,
+  and engineering changes.
+- Signal Atlas product code stays in this repository. Relevant upstream changes
+  are checked and reviewed before anyone decides whether to adapt them here.
+- `.github/workflows/sync-main.yml` checks upstream drift only. It never merges,
+  rebases, cherry-picks, resets, opens a pull request, or pushes changes.
 
-Root README content follows the branch model. A `feature/*` branch's root README
-describes only that branch's application: what it does, its interactions, and its
-notes. The fork `main` root README is the catalog of every hosted project and keeps
-one section per application, refreshed when an application is released or archived.
-Do not repeat the whole catalog on a feature branch, and do not reduce the `main`
-catalog to a list of links.
+## Checking and contributing upstream
 
-## Fork rules
+The scheduled and manually triggered upstream drift check reports the current
+`FoloToy/ai-passport:main` SHA, its ahead/behind relationship to Signal Atlas
+`main`, and commits since their common ancestor. A report that upstream is ahead
+is a review prompt, not an instruction to integrate its commits. Review relevant
+changes and make an explicit, scoped decision before adapting general BSP,
+hardware, build, or engineering improvements into Signal Atlas.
 
-- Keep fork `main` synchronized with `FoloToy/ai-passport:main`.
-- On fork `main`, limit fork-owned content to a root `README.md` pair and `docs/assets/`; develop firmware and other changes on `feature/*` branches and merge by pull request.
-- **Before starting a new project, create the `feature/*` branch from a base that stays aligned with `FoloToy/ai-passport:main`.** Use the latest upstream `main` as the branch-off point (e.g. fetch upstream then branch from `upstream/main`), not the fork's own `main` — the fork `main` may be stale or unable to sync. This keeps every new project on the current upstream baseline and avoids basing work on a stale or diverged fork `main`.
-- Enable GitHub Actions manually after forking. The upstream-sync workflow is disabled by GitHub until the fork owner enables it.
-- If development must happen directly on `main`, disable `.github/workflows/sync-main.yml` first to prevent automatic merge conflicts.
+General improvements that benefit AI Passport users may be contributed to
+`FoloToy/ai-passport` through a pull request. Keep Signal Atlas product code and
+product-specific behavior in this repository. If an upstream contribution
+requires a GitHub fork, create or use a separate contributor fork and branch;
+do not convert Signal Atlas itself into a fork. Use `origin` only for the
+Signal Atlas repository.
 
-Use `docs/assets/` for architecture notes, product design, and images that supplement a fork's README. Upstream keeps that directory empty except for `.gitkeep`; fork-private content must not be proposed back to upstream.
+When preparing an upstream contribution, verify which repository is the PR base
+and which is the contributor head. Follow
+[`docs/contribution/commit-and-pr.md`](contribution/commit-and-pr.md) and the
+relevant contribution skill. Do not synchronize Signal Atlas `main` as a
+side-effect of preparing an upstream PR.
 
-Documentation and experience follow the same split. Fork-specific product customization (architecture notes, product design, fork-only assets) stays in the fork under `docs/assets/` and is not proposed back upstream. General, upstream-benefiting documentation or experience improvements — durable facts, reusable interfaces, build or release-flow improvements that help any AI Passport user — are submitted back upstream as a pull request. Application archives under the repository-relative `docs/reference/<username>/<app-name>/` and post-release experience notes under `docs/reference/<username>/` belong upstream and are proposed back as pull requests. Use the `experience-pr` and `plays-archive` skills for post-release work; see `docs/development/release/project-completion.md`.
+## Signal Atlas documentation and releases
 
-All fork documentation follows the repository language rule: English at the default `.md` path and Simplified Chinese at `.zh_CN.md`, with reciprocal switches.
+Signal Atlas product documentation, application records, and release notes
+belong in this repository. Reusable engineering documentation may be proposed
+upstream after review; Signal Atlas-specific requirements and implementation
+details stay here.
+
+The upstream repository reserves its root `README.md` for its own conventions
+and keeps its project overview in `docs/README.md`. An upstream pull request
+should avoid changing those reserved files unless the proposed change is
+specifically intended for the upstream repository and follows its contribution
+rules.
+
+All paired repository documentation follows the language rule: English at the
+default `.md` path and Simplified Chinese at `.zh_CN.md`, with reciprocal links.

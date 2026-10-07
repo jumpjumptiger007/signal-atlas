@@ -212,7 +212,8 @@ commit, push, tag, and release.
    since the previous release and update both changelog languages as described
    in [Automated Build and Release](../ci/CI-build-and-release.md). Ordinary
    feature, application, and documentation pull requests skip this step.
-2. Commit the change and push it to the fork (`origin`) — confirm separately.
+2. Commit the change and push it to Signal Atlas `origin` — confirm separately.
+   `origin` is not a contributor fork for upstream pull requests.
 3. Create and push a tag to trigger the release workflow — confirm separately.
 4. Let the tagged build produce the merged firmware `.bin`.
 5. Create or update the GitHub/GitLab release with the artifact — confirm
@@ -228,7 +229,7 @@ commit, push, tag, and release.
 
 - Follow the repository commit and pull-request rules
   ([commit-and-pr.md](../../contribution/commit-and-pr.md)).
-- Follow the fork workflow ([fork-guide.md](../../fork-guide.md)).
+- Follow the repository and upstream workflow ([fork-guide.md](../../fork-guide.md)).
 - A tag-triggered build runs `build-firmware.yml`, which publishes the release
   only for a tag. See [CI-build-and-release.md](../ci/CI-build-and-release.md).
 - For day-to-day compilation prefer `idf.py build` (fast, incremental); use
@@ -253,11 +254,12 @@ is driven by the `experience-pr` skill.
 
 ### Focus
 
-Capture the fork's own `docs/` differences from upstream — the documents the
-developer created or changed on this fork. Extract only durable, reusable
-learnings:
+Review Signal Atlas `docs/` changes that may contain reusable engineering
+learnings. Extract only durable information that benefits the upstream AI
+Passport project:
 
-- What the fork documents or changes that upstream does not, and why.
+- What Signal Atlas documents that upstream does not, and why it may be useful
+  beyond this product.
 - Hardware facts, interfaces, timings, resource budgets, or failure behavior.
 - Build, validation, or release-flow improvements.
 - Generalizations that apply to the next release.
@@ -269,22 +271,24 @@ Decide where each learning belongs before submitting:
 - **Upstream the reusable, general experience** — learnings that benefit any
   user and belong in the upstream baseline. Submit as a PR to the upstream
   project.
-- **Keep fork-specific customization in the fork** — product-customized content,
-  fork-private business rules, or fork-only assets. Do not submit these
-  upstream; record them locally.
+- **Keep Signal Atlas-specific material here** — product requirements,
+  product-specific behavior, and Signal Atlas assets remain in this repository.
+  Do not submit those as upstream baseline changes.
 
 ### Steps
 
 1. Confirm consent and a GitHub channel (GitHub MCP, a GitHub skill, or `gh`).
-2. Compare the fork to upstream to find the `docs/` differences.
+2. Compare the relevant Signal Atlas documentation with upstream and identify
+   reusable engineering content.
 3. Extract and route the reusable experience.
 4. Write a single entry under `docs/reference/<username>/` (one `.md` file plus
    its `.zh_CN.md` peer), named after the entry's content summary in
    lowercase-kebab-case, and link it from the experience index.
-5. Present the change for review, then commit, push to the fork, and open a PR
-   only after explicit approval.
+5. Present the change for review. If approved, prepare the upstream PR on a
+   separate contributor fork/branch; do not use Signal Atlas `origin` as the PR
+   head and do not convert Signal Atlas into a fork.
 
-Related: [experience index](../../reference/README.md), [fork workflow](../../fork-guide.md).
+Related: [experience index](../../reference/README.md), [repository and upstream workflow](../../fork-guide.md).
 
 ## Action D: Archive the Application to Reference
 
@@ -323,61 +327,37 @@ driven by the `plays-archive` skill.
 Related: [application archive convention](../../reference/README.md),
 [`plays-archive` skill](../../../skills/plays-archive/SKILL.md).
 
-## Action E: Update the Root README
+## Action E: Update the Signal Atlas README
 
-This action updates the fork's root `README.md` on the relevant branches to reflect
-the newly released or archived application.
-
-The root README path is intentionally reserved for the fork owner. Upstream's
-project overview lives at `docs/README.md`; a fork may add its own root README to
-explain its product without replacing upstream documentation.
-
-The fork keeps `main` synced with upstream and puts product work on `feature/*`
-branches, so root READMEs exist on multiple branches. Handle each branch's root
-README independently — the `main` README and a `feature/*` branch README are
-separate decisions.
+Update the Signal Atlas root `README.md` pair in this independent product
+repository when a release changes the product overview or usage instructions.
+Signal Atlas `main` is the product branch; it does not mirror upstream and there
+is no separate fork `main` catalog to maintain.
 
 ### When this is recommended
 
-The README update is an **optional** action like the other five, and it is also
-the default companion to archiving: when the application is archived to `docs/reference/`
-(action D), the README sync runs as part of that action. Archiving itself is
-optional — the developer may decline — but whenever a project is completed, the
-README should be refreshed on the hosting branch and on fork `main` so the
-application is registered where it is developed.
+The README update is optional. Consider it when a release materially changes
+the user-facing product description or instructions. Application records and
+release history for Signal Atlas belong in this repository.
 
 ### Rules
 
-- Only touch fork-owned root READMEs (`README.md` / `README.zh_CN.md`); do not
-  modify the upstream project overview at `docs/README.md`.
-- Check the root README on each relevant branch (`main` and the current
-  `feature/*` branch), not just one branch.
-- A `feature/*` branch's root README describes **only that branch's application** —
-  what it does, its interactions, and its notes. The catalog belongs on fork `main`
-  alone: do not repeat it on the branch, and do not reduce it to links.
-- The fork `main` root README is the **catalog of the fork's projects**: it
-  **fully includes** the content of each project's own README — a complete
-  description of what the application does and how to use it (its interactions,
-  modes, keys, persistence, and notes) — not a one-line intro followed by a
-  branch link. Pull the content from the hosting branch's README.
-- The fork root README and the hosting branch's root README are fork-owned
-  content. Commit them directly (merge) rather than opening a PR; open a PR only
-  when the change is meant to go upstream.
+- Update the README on the Signal Atlas product branch. Do not create or update
+  a duplicate catalog on a branch that only carries temporary work.
+- Keep Signal Atlas product descriptions and instructions in this repository.
+- If a separate change is intended for upstream, prepare it independently on a
+  contributor fork/branch and follow the upstream contribution rules.
 - Follow the repository language rule: English at the default `.md` path and
   Simplified Chinese at the paired `.zh_CN.md`, aligned in the same change.
 
 ### Steps
 
 1. Confirm consent and a GitHub channel (GitHub MCP, a GitHub skill, or `gh`).
-2. On the hosting `feature/*` branch: create the bilingual README pair if it is
-   missing, or update it to add or refresh the application's own description.
-3. On fork `main`: update the root README pair so the released application is
-   discoverable from the repository landing page, fully including the hosting
-   branch's README content.
-4. Commit the README updates directly to the branch / fork `main` (fork-owned
-   content); do not open a PR for this unless it is an upstream change.
+2. Update the Signal Atlas root README pair with the released product details
+   when needed.
+3. Review the diff and include the README in the Signal Atlas release change.
 
-Related: [fork workflow and root README ownership](../../fork-guide.md),
+Related: [repository and upstream workflow](../../fork-guide.md),
 [`plays-archive` skill](../../../skills/plays-archive/SKILL.md),
 [documentation conventions](../../contribution/doc-conventions.md).
 
@@ -413,5 +393,5 @@ Related: [filing issues reference](file-issues.md),
 ## Related documents
 
 - Firmware publishing: [publish-to-community.md](publish-to-community.md)
-- Fork workflow and root README ownership: [fork-guide.md](../../fork-guide.md)
+- Repository and upstream workflow: [fork-guide.md](../../fork-guide.md)
 - Commit and pull-request rules: [commit-and-pr.md](../../contribution/commit-and-pr.md)

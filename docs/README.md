@@ -126,7 +126,7 @@ git diff main...origin/demo/tetris-game -- main components tests
 git show origin/demo/tetris-game:main/demo_tetris.c
 ```
 
-Start a new application. This repository hosts several independent projects on one baseline: after starting from `main`, create a `feature/*` branch and develop the application there — do not develop directly on `main`. Each project's final branch is `feature/*` (e.g. `feature/my-passport-app`), kept separate so `main` stays a clean upstream baseline and the projects do not entangle.
+Start new work from Signal Atlas `main` by creating a `feature/*` branch; keep the product's main branch focused on Signal Atlas. `main` is not an upstream mirror. The read-only upstream drift check reports changes for review, and upstream commits are integrated only by an explicit decision.
 
 ```bash
 git switch main
@@ -213,7 +213,7 @@ provide reference material. Choose the entry that matches your task.
 | [Community projects and experience](reference/README.md) | Playbooks and reusable knowledge under `docs/reference/<username>/` |
 | [Contributing](contribution/README.md) | Documentation, commits, and pull-request conventions |
 | [Brand assets](brand/README.md) | Product visual references and [brand language](brand/brand-and-product.md) |
-| [Fork guide](fork-guide.md) · [Changelog](CHANGELOG.md) | Downstream workflows and release history |
+| [Repository and upstream workflow](fork-guide.md) · [Changelog](CHANGELOG.md) | Repository roles, upstream review, and release history |
 
 ---
 

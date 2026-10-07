@@ -20,8 +20,9 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 1. **先确认同意。** 本工作涉及项目私有内容。先向开发者确认是否同意归档该应用；开发者拒绝则
    立即停止。
 2. **绝不在当前分支上修改或提交。** 以最新上游 `main` 为干净基线，另起一个独立分支或 worktree
-   承载，推到开发者的 fork（`origin`），并从该 fork 分支向上游 `FoloToy/ai-passport` 开 PR。
-   保持当前 checkout 不被改动。
+   承载，且不触碰 Signal Atlas `origin`。如需 push，使用单独配置的 contributor fork remote
+   （例如 `contributor`），并从该 contributor branch 向 `FoloToy/ai-passport` 开 PR。保持
+   当前 checkout 不被改动。
 3. **不写入凭证或私有数据。** 永远不包含凭证、设备 QR 密钥、私密设备链接、个人数据或未脱敏
    日志。提交任何内容前先运行 `python3 tools/check_repo.py`。
 
@@ -38,16 +39,14 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 - `git ls-tree --name-only main README.md` —— `main` 分支有没有 README？
 - `test -f README.md` —— 当前分支有没有 README？
 
-遵循仓库规则：根 README 路径保留给 fork owner（见 `docs/fork-guide.md`）；除非 fork 确实拥有
-根 README，否则不要创建。
+仅将 Signal Atlas README 作为功能说明的参考资料。不要在 upstream archive branch 中修改
+Signal Atlas 根 README，也不要在 `FoloToy/ai-passport` 中为应用归档创建或更新根 README。
 
 1. **若有 README**（`main` 或当前分支有）：归档时把 **README 内容合并进功能说明**，让说明既
    反映人类可读的描述，也反映代码。已存在的 README 归它所属的分支保留。
 2. **若没有 README**：直接从实现总结，不合并 README。
-3. **归档完成后**，对每个分支的根 README **各自处理**（不是一个合并判断）：
-   - 对**没有**根 README 的分支：在**该分支**创建（或更新）README，让归档的应用能从 fork 自己的
-     README 检索到。
-   - 对已经**有**根 README 的分支：**提示开发者更新它**，以反映新归档的应用。
+3. 归档完成后，由各自仓库维护者决定是否更新根 README。Signal Atlas 产品 README 的更新
+   应通过 Signal Atlas `origin` 的独立变更完成。
 
 ## 生成功能说明
 
@@ -79,13 +78,13 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 ## 提交
 
 在独立分支上提交总结（英文祈使句 Conventional Commit 标题，例如
-`docs(reference): add <app-name> application archive`）。若创建或更新了根 README，一并纳入同一次变更。
-**不要**在这里存合并固件 `.bin`；它是构建/发布产物。按 Build、Host tests、Device tests、
+`docs(reference): add <app-name> application archive`）。**不要**在这里存合并固件 `.bin`；
+它是构建/发布产物。按 Build、Host tests、Device tests、
 Unverified 分别上报。
 
 审查后，通过第一个可用的 GitHub 通道（GitHub MCP、GitHub skill、或
-`gh pr create --repo FoloToy/ai-passport --base main --head <fork>:<branch>`）从 fork 分支
-向上游 `FoloToy/ai-passport` 开 PR，并回读确认。开 PR 需要单独的再次确认。
+`gh pr create --repo FoloToy/ai-passport --base main --head <fork>:<branch>`）从单独的
+contributor fork branch 向上游 `FoloToy/ai-passport` 开 PR，并回读确认。开 PR 需要单独的再次确认。
 
 ## 本 skill 不做的事
 
@@ -93,6 +92,7 @@ Unverified 分别上报。
 - 不改生产源码、不改固件。
 - 不存储固件 `.bin` 二进制。
 - 不存储封面图（档案为纯文本）。
+- 不把 Signal Atlas `origin` 用作上游 PR head，也不将 Signal Atlas 转成 fork。
 - 未经开发者审查与同意，不自动提交任何内容。
 
 ## 相关文档

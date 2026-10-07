@@ -2,8 +2,8 @@
 
 # 贡献指南
 
-感谢你为 FoloToy AI Passport 贡献代码、文档、固件和反馈。本仓库是面向 AI agent 的
-开源可穿戴 AI 硬件的开发基线。它常被 fork 后二次开发，fork 用户约定见
+感谢你为 Signal Atlas 贡献代码、文档、固件和反馈。Signal Atlas 是基于 FoloToy
+AI Passport 硬件基线构建的独立产品仓库。它与 FoloToy upstream 的关系及贡献流程见
 [`docs/fork-guide.zh_CN.md`](/docs/fork-guide.zh_CN.md)。
 
 ## 开始之前
@@ -13,7 +13,8 @@
   [AI 硬件开发指南](/docs/hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.zh_CN.md) 的完整硬件上下文。
 - 参与社区时请遵守 [`CODE_OF_CONDUCT.zh_CN.md`](/.github/CODE_OF_CONDUCT.zh_CN.md)；普通使用问题见 [`SUPPORT.zh_CN.md`](/.github/SUPPORT.zh_CN.md)。
 - 不要提交凭证、令牌、授权文件或个人数据。
-- 仓库的 `main` 分支始终与上游基线保持同步；fork 用户在 `feature/*` 分支开发功能（见 `docs/fork-guide.md`）。
+- Signal Atlas `main` 是产品分支，不镜像 `FoloToy/ai-passport:main`。应先明确
+  review 上游变化，再决定是否将相关改进适配到本仓库。
 
 ## 开发与验证
 

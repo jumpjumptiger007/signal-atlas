@@ -16,6 +16,13 @@
 
 ## PR 约定
 
+- Signal Atlas 的 `origin` 是独立产品仓库。向 `FoloToy/ai-passport` 提交上游 PR
+  时，必须使用托管在单独 contributor fork 中的 branch（或另一个经明确授权的
+  contributor remote）；不得把 Signal Atlas `origin` 作为上游 PR head，也不得将
+  Signal Atlas 转成 fork。
+- 创建上游 PR 前，确认 base repository 是 `FoloToy/ai-passport`，head 是预期的
+  contributor branch。通用 BSP、hardware、build 和 engineering 改进可以提议给
+  upstream；Signal Atlas 产品代码留在本仓库。
 - PR 标题使用英文，采用 Conventional Commit 格式和英文祈使句，例如 `docs: streamline AI development workflow`。
 - PR body 使用英文，至少填写 `.github/PULL_REQUEST_TEMPLATE.md` 中的摘要、兼容性和验证结果。
 - Build、Host tests 和 Device tests 必须分开报告；未执行的真机项目写入 `Unverified`，不能用编译成功代替实机验证。

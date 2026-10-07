@@ -24,9 +24,10 @@ Do not create, write, or commit anything until every gate below is satisfied.
    decline, stop immediately.
 2. **Never modify or commit on the current branch.** Base the archive on the
    latest upstream `main` for a clean baseline, create a dedicated branch or
-   worktree, push it to the developer's fork (`origin`), and open the PR from
-   that fork branch against the upstream `FoloToy/ai-passport`. Leave the current
-   checkout untouched.
+   worktree, and keep Signal Atlas `origin` untouched. If a push is needed, use
+   a separate contributor fork configured as its own remote (for example,
+   `contributor`), then open the PR from that contributor branch against
+   `FoloToy/ai-passport`. Leave the current checkout untouched.
 3. **No credentials or private data.** Never include credentials, device QR
    secrets, private device links, personal data, or unsanitized logs. Run
    `python3 tools/check_repo.py` before committing anything.
@@ -47,9 +48,10 @@ branch and the current branch:
 - `git ls-tree --name-only main README.md` — is there a README on `main`?
 - `test -f README.md` — is there a README on the current branch?
 
-Follow the repository rule that the root README path is reserved for the fork
-owner (see `docs/fork-guide.md`); do not create a root README unless the fork
-actually owns one.
+Use the Signal Atlas README only as source material for the functional summary.
+Do not modify Signal Atlas root README files in the upstream archive branch, and
+do not create or update root README files in `FoloToy/ai-passport` as part of an
+application archive.
 
 1. **If a README exists** (on `main` or the current branch): when archiving, **merge
    the README content into the functional summary** so the summary reflects the
@@ -57,13 +59,9 @@ actually owns one.
    kept for the branch that owns it.
 2. **If no README exists**: summarize directly from the implementation, with no
    README merge.
-3. **After archiving is complete**, handle each branch's root README independently
-   (not as a single combined decision):
-   - For a branch with **no** root README, **create** (or update) the README on
-     that branch so the archived application is discoverable from the fork's own
-     README.
-   - For a branch that already **has** a root README, **prompt the developer to
-     update it** to reflect the new archived application.
+3. After archiving, leave root README maintenance to the owning repository. Any
+   Signal Atlas product README update belongs in Signal Atlas `origin` through
+   its own change.
 
 ## Generate the functional summary
 
@@ -109,13 +107,12 @@ convention in [`docs/brand/README.md`](../../docs/brand/README.md).
 
 Commit the summary on the dedicated branch (English imperative
 Conventional Commit title, for example
-`docs(reference): add <app-name> application archive`). If a root README was created
-or updated, include it in the same change. Do **not** store the merged
+`docs(reference): add <app-name> application archive`). Do **not** store the merged
 firmware `.bin` here; it is a build/publish artifact. Report Build, Host tests,
 Device tests, and Unverified separately.
 
-After review, open the PR from the fork branch against the upstream
-`FoloToy/ai-passport` through the first available GitHub channel — GitHub MCP, a
+After review, open the PR from a separate contributor fork branch against the
+upstream `FoloToy/ai-passport` through the first available GitHub channel — GitHub MCP, a
 GitHub skill, or
 `gh pr create --repo FoloToy/ai-passport --base main --head <fork>:<branch>` —
 and read it back to confirm. Opening a PR requires separate confirmation.
@@ -126,6 +123,8 @@ and read it back to confirm. Opening a PR requires separate confirmation.
 - It does not modify production source or the firmware.
 - It does not store the firmware `.bin` binary.
 - It does not store the cover image (the archive is text-only).
+- It does not use Signal Atlas `origin` as an upstream PR head or convert Signal
+  Atlas into a fork.
 - It does not auto-submit anything without developer review and consent.
 
 ## Related documents

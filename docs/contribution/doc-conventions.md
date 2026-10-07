@@ -74,11 +74,11 @@ require rewriting or translating the original upstream documents.
 
 - Upstream baseline documents cover AI Passport hardware, BSP behavior, baseline demos, engineering constraints, and acceptance methods.
 - Shared contribution and engineering documents cover code style, testing, commits, CI, and AI workflows grounded in this repository's real tools.
-- Fork-only product requirements, business logic, or assets stay in the fork's root README or `docs/assets/`.
+- Signal Atlas product requirements, business logic, and assets stay in this independent repository; reusable BSP, hardware, build, and engineering improvements may be proposed upstream after review.
 
 ## Placement
 
-- Keep the tracked repository root limited to tool-discovery files (`AGENTS.md`, `CLAUDE.md` and their translations), an optional fork README pair, license/build manifests, and ESP-IDF configuration.
+- Keep the tracked repository root limited to tool-discovery files (`AGENTS.md`, `CLAUDE.md` and their translations), the Signal Atlas README pair, license/build manifests, and ESP-IDF configuration.
 - Put project documentation and history in `docs/`, grouped by contribution, development, hardware, and software responsibility.
 - Put GitHub-recognized community files, templates, issue forms, and workflows in `.github/`.
 - Put reusable binary/source assets in `assets/`, project skills in `skills/`, and automation in `tools/`.

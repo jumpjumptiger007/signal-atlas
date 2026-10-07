@@ -33,9 +33,10 @@ These gates are the highest-priority constraints.
    usually derived from the current working branch, but the change must **not**
    be committed on the developer's current branch. Base the work on the latest
    upstream `main` for a clean baseline, create a dedicated branch or worktree,
-   push it to the developer's fork (`origin`), and open the PR from that fork
-   branch against the upstream `FoloToy/ai-passport`. Leave the current checkout
-   untouched.
+   and keep Signal Atlas `origin` untouched. If a push is needed, use a separate
+   contributor fork configured as its own remote (for example, `contributor`),
+   then open the PR from that contributor branch against `FoloToy/ai-passport`.
+   Leave the current checkout untouched.
 4. **Never submit before review.** Draft everything first, show it to the
    developer, and wait for explicit approval. Do not commit, push, or open a PR
    until the developer has reviewed and authorized it. Opening a PR also
@@ -47,27 +48,24 @@ These gates are the highest-priority constraints.
 ## Upstream remote
 
 The workflow assumes a remote named `upstream` points to
-`https://github.com/FoloToy/ai-passport.git`. If it is not configured, add it
-first:
+`https://github.com/FoloToy/ai-passport.git`. In Signal Atlas, `origin` points
+to `https://github.com/jumpjumptiger007/signal-atlas.git` and must not be used
+as the upstream PR head. If `upstream` is not configured, add it first:
 
 ```bash
 git remote add upstream https://github.com/FoloToy/ai-passport.git
 ```
 
-If the fork's `origin/main` is already synchronized with the upstream `main`,
-`git fetch origin` may be used instead of `git fetch upstream`. Confirm which
-source is current before basing the branch on it.
+Fetch `upstream` to establish the current baseline. Do not assume Signal Atlas
+`origin/main` mirrors upstream, or use it as a substitute for `upstream`.
 
 ## Collect reusable experience
 
-Focus on the **fork's own `docs/` differences from upstream** — the documents
-under `docs/` that the developer created or changed on this fork and that
-therefore diverge from upstream. These are the reuseable, fork-specific
-learnings worth recording. Find them by comparing this fork to the upstream
-baseline:
+Focus on reusable engineering learnings in Signal Atlas `docs/` that may benefit
+the upstream project. Compare relevant documents with the upstream baseline:
 
 ```bash
-# Files under docs/ that differ from upstream (created or changed on the fork)
+# Files under docs/ that differ from upstream (created or changed in Signal Atlas)
 git diff --name-only upstream/main...HEAD -- docs/
 
 # Files under docs/ that exist here but not on upstream main
@@ -78,9 +76,10 @@ comm -23 \
 
 From the differing documents, extract only durable, reusable learnings:
 
-- What the fork documents or changes that upstream does not, and why.
+- What Signal Atlas documents that upstream does not, and why it may help other
+  AI Passport users.
 - Hardware facts, interfaces, timings, resource budgets, or failure behavior the
-  fork recorded.
+  Signal Atlas recorded.
 - Build, validation, or release-flow improvements the fork made.
 - Generalizations that apply to the next release.
 
@@ -97,14 +96,13 @@ before submitting:
   build/validation improvements, durable hardware facts open to upstream,
   reusable interfaces or release-flow improvements). Submit these as a PR to the
   upstream `FoloToy/ai-passport`.
-- **Keep fork-specific customization in the fork** — product-customized
-  content, fork-private business rules, or fork-only assets that `fork-guide.md`
-  says must not be proposed back to upstream. Do **not** submit these upstream;
-  record them as a local documentation change instead (see
-  [`docs/fork-guide.md`](../../docs/fork-guide.md) and the fork README / `docs/assets/`).
+- **Keep Signal Atlas-specific material in this repository** — product
+  requirements, product-specific behavior, and Signal Atlas assets are not
+  upstream baseline changes. Do **not** submit them upstream (see
+  [`docs/fork-guide.md`](../../docs/fork-guide.md)).
 
-Route each entry according to this split; do not send fork-specific
-customization to the upstream PR.
+Route each entry according to this split; do not send Signal Atlas-specific
+product customization to the upstream PR.
 
 ## Write the experience entry
 
@@ -133,11 +131,12 @@ developer's current branch.
    (upstream vs fork-local), and wait for explicit authorization.
 2. On approval, commit on the dedicated branch (English imperative Conventional
    Commit title, for example
-   `docs(development): add post-release experience notes`) and push it to the
-   developer's fork (`origin`).
+   `docs(development): add post-release experience notes`). If a remote push is
+   needed, use a separate contributor fork remote; never push this upstream PR
+   branch to Signal Atlas `origin`.
 3. Fill the upstream `.github/PULL_REQUEST_TEMPLATE.md` completely, in English,
    and report Build, Host tests, Device tests, and Unverified separately.
-4. Ask for separate confirmation, then open the PR from the fork branch against
+4. Ask for separate confirmation, then open the PR from the contributor fork branch against
    the upstream `FoloToy/ai-passport` through the first available GitHub channel
    — GitHub MCP, a GitHub skill, or
    `gh pr create --repo FoloToy/ai-passport --base main --head <fork>:<branch>` —
@@ -156,6 +155,8 @@ impact in the pull-request body for the release maintainer to aggregate later.
 - It does not publish firmware or run the publisher workflow.
 - It does not submit experience content to a separate public location.
 - It does not commit on or modify the developer's current branch.
+- It does not convert Signal Atlas into a fork or use Signal Atlas `origin` as
+  an upstream PR head.
 - It does not auto-submit anything without developer review and consent.
 
 ## Related documents

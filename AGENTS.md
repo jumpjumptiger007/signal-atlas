@@ -175,6 +175,19 @@ Project execution documentation is maintained in canonical English `.md` files u
 
 ## 2. Hardware and source-of-truth baseline
 
+### Repository and upstream roles
+
+Signal Atlas is an independent product repository, not a GitHub fork. `origin`
+is `https://github.com/jumpjumptiger007/signal-atlas.git`; `upstream` is
+`https://github.com/FoloToy/ai-passport.git`. Signal Atlas `main` is the product
+branch and is not required to mirror upstream `main`. Upstream provides reusable
+BSP, hardware, build, and engineering changes. Review upstream changes
+explicitly before deciding whether to adapt them. The upstream drift workflow is
+read-only and must never automatically integrate upstream commits into Signal
+Atlas `main`. Signal Atlas product code remains in this repository. Use a
+separate contributor fork/branch for upstream PRs when needed; do not convert
+this repository into a fork.
+
 Target:
 
 - ESP32-C3

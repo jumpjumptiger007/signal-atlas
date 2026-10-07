@@ -1,7 +1,7 @@
-name: Upstream Sync
+name: Upstream Drift Check
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   schedule:
@@ -9,32 +9,48 @@ on:
   workflow_dispatch:
 
 jobs:
-  sync_latest_from_upstream:
-    name: Sync latest commits from upstream repo
+  check-upstream:
+    name: Check FoloToy upstream drift
     runs-on: ubuntu-latest
-    if: ${{ github.event.repository.fork }}
-
     steps:
-      # Step 1: run a standard checkout action
-      - name: Checkout target repo
+      - name: Checkout Signal Atlas main
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: main
+          fetch-depth: 0
           persist-credentials: false
 
-      # Step 2: run the sync action
-      - name: Sync upstream changes
-        id: sync
-        uses: aormsby/Fork-Sync-With-Upstream-action@3863de47aaf0256b8dee9cded3dfed090b7270a2 # v3.4.3 + rev-list ambiguity fix (aormsby/Fork-Sync-With-Upstream-action#85)
-        with:
-          upstream_sync_repo: FoloToy/ai-passport
-          upstream_sync_branch: main
-          target_sync_branch: main
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }} # automatically generated, no need to set
-
-      - name: Sync check
-        if: failure()
+      - name: Compare with FoloToy upstream
+        id: drift
+        shell: bash
         run: |
-          echo "[Error] 同步失败，请检查日志；若涉及上游 workflow 变更，请手动 Sync Fork，详见 docs/development/ci/CI-sync-main.md。"
-          echo "[Error] Synchronization failed; inspect the logs. For upstream workflow changes, Sync the fork manually; see docs/development/ci/CI-sync-main.md."
-          exit 1
+          set -euo pipefail
+          git remote add upstream https://github.com/FoloToy/ai-passport.git
+          git fetch --no-tags upstream main
+
+          head_sha="$(git rev-parse HEAD)"
+          upstream_sha="$(git rev-parse FETCH_HEAD)"
+          read -r ahead behind < <(git rev-list --left-right --count "${head_sha}...${upstream_sha}")
+
+          {
+            echo "## FoloToy upstream drift check"
+            echo
+            echo "- Signal Atlas \`main\`: \`${head_sha}\`"
+            echo "- FoloToy \`main\`: \`${upstream_sha}\`"
+            echo "- Relationship: Signal Atlas is ${ahead} commit(s) ahead and ${behind} commit(s) behind."
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if base="$(git merge-base "${head_sha}" "${upstream_sha}")"; then
+            echo "- Common ancestor: \`${base}\`" >> "${GITHUB_STEP_SUMMARY}"
+            echo >> "${GITHUB_STEP_SUMMARY}"
+            echo "### Upstream commits since the common ancestor" >> "${GITHUB_STEP_SUMMARY}"
+            if [[ "${behind}" -eq 0 ]]; then
+              echo "No upstream-only commits." >> "${GITHUB_STEP_SUMMARY}"
+            else
+              git log --format='- %h %s (%cs)' --reverse "${base}..${upstream_sha}" >> "${GITHUB_STEP_SUMMARY}"
+              echo "::warning::FoloToy upstream has ${behind} commit(s) not in Signal Atlas main. Review the listed commits before deciding whether to adapt or contribute any changes; this workflow does not integrate them."
+            fi
+          else
+            echo "- Common ancestor: none" >> "${GITHUB_STEP_SUMMARY}"
+            echo "::warning::Signal Atlas main and FoloToy main have no common ancestor. Review repository history manually; this workflow does not integrate changes."
+          fi
