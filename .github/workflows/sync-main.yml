@@ -32,25 +32,35 @@ jobs:
           upstream_sha="$(git rev-parse FETCH_HEAD)"
           read -r ahead behind < <(git rev-list --left-right --count "${head_sha}...${upstream_sha}")
 
+          has_base=false
+          if base="$(git merge-base "${head_sha}" "${upstream_sha}")"; then
+            has_base=true
+          fi
+
           {
             echo "## FoloToy upstream drift check"
             echo
             echo "- Signal Atlas \`main\`: \`${head_sha}\`"
             echo "- FoloToy \`main\`: \`${upstream_sha}\`"
             echo "- Relationship: Signal Atlas is ${ahead} commit(s) ahead and ${behind} commit(s) behind."
+            if [[ "${has_base}" == true ]]; then
+              echo "- Common ancestor: \`${base}\`"
+            else
+              echo "- Common ancestor: none"
+            fi
+            echo
+            echo "### Upstream commits since the common ancestor"
+            if [[ "${has_base}" != true ]]; then
+              echo "No common ancestor; review repository history manually."
+            elif [[ "${behind}" -eq 0 ]]; then
+              echo "No upstream-only commits."
+            else
+              git log --format='- %h %s (%cs)' --reverse "${base}..${upstream_sha}"
+            fi
           } >> "${GITHUB_STEP_SUMMARY}"
 
-          if base="$(git merge-base "${head_sha}" "${upstream_sha}")"; then
-            echo "- Common ancestor: \`${base}\`" >> "${GITHUB_STEP_SUMMARY}"
-            echo >> "${GITHUB_STEP_SUMMARY}"
-            echo "### Upstream commits since the common ancestor" >> "${GITHUB_STEP_SUMMARY}"
-            if [[ "${behind}" -eq 0 ]]; then
-              echo "No upstream-only commits." >> "${GITHUB_STEP_SUMMARY}"
-            else
-              git log --format='- %h %s (%cs)' --reverse "${base}..${upstream_sha}" >> "${GITHUB_STEP_SUMMARY}"
-              echo "::warning::FoloToy upstream has ${behind} commit(s) not in Signal Atlas main. Review the listed commits before deciding whether to adapt or contribute any changes; this workflow does not integrate them."
-            fi
-          else
-            echo "- Common ancestor: none" >> "${GITHUB_STEP_SUMMARY}"
+          if [[ "${has_base}" != true ]]; then
             echo "::warning::Signal Atlas main and FoloToy main have no common ancestor. Review repository history manually; this workflow does not integrate changes."
+          elif [[ "${behind}" -gt 0 ]]; then
+            echo "::warning::FoloToy upstream has ${behind} commit(s) not in Signal Atlas main. Review the listed commits before deciding whether to adapt or contribute any changes; this workflow does not integrate them."
           fi
